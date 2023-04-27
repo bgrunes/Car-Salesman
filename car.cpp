@@ -1,15 +1,22 @@
 #pragma once
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <string>
 using std::cout;
 using std::string;
+using std::stringstream;
+using std::fixed;
+using std::setprecision;
 
 class Car
 {
 private:
+	// Member variables
 	string make, model, year, price, transmission, mileage, fuelType, mpg, engineSize;
 
 public:
+	// Default Constructor
 	Car()
 	{
 		this->make = "";
@@ -23,6 +30,7 @@ public:
 		this->engineSize = "";
 	}
 
+	// Constructor
 	Car(string make, string model, string year, string price, string transmission, string mileage, string fuelType, string mpg, string engineSize)
 	{
 		this->make = make;
@@ -35,6 +43,8 @@ public:
 		this->mpg = mpg;
 		this->engineSize = engineSize;
 	}
+
+	/* All Get Functions */
 
 	string getMake()
 	{
@@ -81,12 +91,20 @@ public:
 		return engineSize;
 	}
 
+	// Function to print member variable data of Car object (formatted)
 	void printData()
 	{
+		stringstream ss;
+		ss << std::dec << price;
+		double p = 0;
+		ss >> p;
+
+		p *= 1.25;
+		
 		cout << year << " " << make << " " << model << "\n";
 		cout << "Transmission: " << transmission << " | Mileage: " 
 			 << mileage << " miles | Fuel: " << fuelType << " | MPG: "
 			 << mpg << " | Engine Size: " << engineSize << " litres\n";
-		cout << "Price: " << price << " pounds\n\n";
+		cout << "Price: $" << std::fixed << std::setprecision(2) << p << "\n\n";
 	}
 };

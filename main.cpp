@@ -18,15 +18,18 @@ using std::cin;
 using std::getline;
 using std::vector;
 using std::ifstream;
+using std::ofstream;
 using std::stringstream;
 using std::chrono::high_resolution_clock;
 using std::chrono::duration;
 using std::milli;
 using std::min;
 
+// All Main Functions
 void getData(string fileName, vector<Car>& ur, string make);
 void sortProblem(vector<Car> vec, int vSize, int input);
 bool handleData(vector<Car> vec);
+void saveToFile(vector<Car> vec);
 vector<Car> subsort(vector<Car> vec, string input, string type);
 vector<Car> subsort(vector<Car> vec, int min, int max);
 void mergeSort(vector<Car>& vec, int left, int right, int type);
@@ -37,12 +40,7 @@ void insertion(vector<Car>& vec, int left, int right, int type);
 
 
 int main()
-{
-	auto t1 = high_resolution_clock::now();
-	auto t2 = high_resolution_clock::now();
-	duration<double, milli> mergeTime;
-	duration<double, milli> timTime;
-	
+{	
 	vector<string> fileName = { "files\\audi.csv", "files\\bmw.csv", "files\\cclass.csv", "files\\ford.csv", "files\\hyundi.csv",
 		"files\\merc.csv", "files\\skoda.csv", "files\\toyota.csv", "files\\vauxhall.csv", "files\\vw.csv"};
 	vector<Car> cars;
@@ -62,19 +60,22 @@ int main()
 	vSize = cars.size();
 	cout << "done!\n\n";
 
+	// Print Welcome
 	cout << "------------------------------------------------------------------------------------------------------------------------\n";
-	cout << "Welcome to Search!\nCreated by Brandon Grunes\n";
-	cout << "Here you can sort through all the used cars for sale in the UK. The easier way to buy!\n";
+	cout << "Welcome to Car Salesman!\n";
+	cout << "Created by Brandon Grunes\n";
+	cout << "Here you can sort through all the used cars for sale. The easier way to buy!\n";
 	cout << "------------------------------------------------------------------------------------------------------------------------\n\n";
 	while (true)
 	{
+		// Print Main Menu
 		cout << "---------\n";
 		cout << "MAIN MENU\n";
 		cout << "---------\n";
 		cout << "What would you like to do?\n";
 		cout << "1. Sort by year\n";
 		cout << "2. Sort by mileage\n";
-		cout << "3. Sort by Price (in British pounds)\n";
+		cout << "3. Sort by Price\n";
 		cout << "4. Exit\n\n";
 		cout << "Choose (by number): ";
 
@@ -85,6 +86,7 @@ int main()
 		int in = 0;
 		ss >> in;
 
+		// Sort by:
 		// State
 		if (in == 1)
 		{
@@ -124,7 +126,7 @@ void getData(string fileName, vector<Car>& ur, string make)
 	if (file.is_open())
 	{
 		string title;
-		string model, year, price, trans, mileage,  fuel, mpg, eSize;
+		string model, year, price, trans, mileage,  fuel, tax, mpg, eSize;
 
 		// Buffer over the 1st column
 		getline(file, title, '\n');
@@ -137,6 +139,7 @@ void getData(string fileName, vector<Car>& ur, string make)
 			getline(file, trans, ',');
 			getline(file, mileage, ',');
 			getline(file, fuel, ',');
+			getline(file, tax, ',');
 			if (fileName != "files\\cclass.csv")
 				getline(file, mpg, ',');
 			getline(file, eSize, '\n');
@@ -152,6 +155,7 @@ void getData(string fileName, vector<Car>& ur, string make)
 		cout << "ERROR: FILE NOT FOUND\n";
 }
 
+// Calculate and print the total time it takes for merge and tim sort to complete (in milliseconds)
 void sortProblem(vector<Car> cars, int vSize, int input)
 {
 	auto t1 = high_resolution_clock::now();
@@ -188,7 +192,6 @@ bool handleData(vector<Car> vec)
 {
 	vector<Car> newVec;
 	string input;
-	stringstream ss;
 
 	cout << "Specify Data? (y/n): ";
 	cin >> input;
@@ -256,8 +259,10 @@ bool handleData(vector<Car> vec)
 			newVec = subsort(vec, stoi(min), stoi(max));
 		}
 	}
-	else
+	else if (input == "n")
+	{
 		return true;
+	}
 
 
 	cout << "Would you like to do another specified search?\n";
@@ -268,7 +273,14 @@ bool handleData(vector<Car> vec)
 	if (input == "y")
 		handleData(newVec);
 	else if (input == "n")
+	{
+		cout << "Would you like to save your data to a file? (y/n): ";
+		cin >> input;
+
+		if (input == "y")
+			saveToFile(vec);
 		return true;
+	}
 	else
 	{
 		cout << "Please provide a valid response!\n\n";
@@ -276,6 +288,23 @@ bool handleData(vector<Car> vec)
 	}
 
 	return true;
+}
+
+// Save grouping vector created by user to new csv file
+void saveToFile(vector<Car> vec)
+{
+	ofstream newFile;
+	newFile.open("output\\carlist.csv");
+
+	newFile << "Year,Make,Model,Transmission,Mileage,Fuel Type,MPG,Engine Size, Price (in $)\n";
+	
+	for (int i = 0; i < vec.size(); i++)
+	{
+		newFile << vec[i].getYear() << "," << vec[i].getMake() << "," << vec[i].getModel() << "," << vec[i].getTrans() << "," << vec[i].getMileage() << "," <<
+			vec[i].getFuelType() << "," << vec[i].getMpg() << "," << vec[i].getEngineSize() << "," << vec[i].getPrice() << "\n";
+	}
+
+	newFile.close();
 }
 
 // Both subsorts are used in the handleData function
@@ -311,7 +340,7 @@ vector<Car> subsort(vector<Car> vec, int min, int max)
 	vector<Car> newVec;
 	for (int i = 0; i < vec.size(); i++)
 	{
-		if (stoi(vec[i].getPrice()) >= min && stoi(vec[i].getPrice()) <= max)
+		if (stoi(vec[i].getPrice()) * 1.25 >= min && stoi(vec[i].getPrice()) * 1.25 <= max)
 		{
 			newVec.push_back(vec[i]);
 			vec[i].printData();
@@ -427,6 +456,7 @@ void timSort(vector<Car>& vec, int type)
 	}
 }
 
+// Insertion sort function for tim sort
 void insertion(vector<Car>& vec, int left, int right, int type)
 {
 	for (int i = left + 1; i <= right; i++)
