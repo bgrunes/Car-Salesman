@@ -294,7 +294,7 @@ bool handleData(vector<Car> vec)
 void saveToFile(vector<Car> vec)
 {
 	ofstream newFile;
-	newFile.open("output\\carlist.csv");
+	newFile.open("carlist.csv");
 
 	newFile << "Year,Make,Model,Transmission,Mileage,Fuel Type,MPG,Engine Size, Price (in $)\n";
 	
